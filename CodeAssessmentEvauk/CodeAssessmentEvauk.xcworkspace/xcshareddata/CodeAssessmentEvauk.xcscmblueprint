@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "A814168D2A5B6145B556C99671CA367B53534050",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "A814168D2A5B6145B556C99671CA367B53534050" : 0,
+    "742037BF435B9981681DA79EC01A766F7A8B4D47" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "4ACBEEBC-283E-4839-A477-2A3AA3731828",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "A814168D2A5B6145B556C99671CA367B53534050" : "CodeAssessment_01\/",
+    "742037BF435B9981681DA79EC01A766F7A8B4D47" : ""
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "CodeAssessmentEvauk",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "CodeAssessmentEvauk\/CodeAssessmentEvauk.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:hbun\/CodeAssessment_01.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "742037BF435B9981681DA79EC01A766F7A8B4D47"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:hbun\/CodeAssessment_01.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "A814168D2A5B6145B556C99671CA367B53534050"
+    }
+  ]
+}

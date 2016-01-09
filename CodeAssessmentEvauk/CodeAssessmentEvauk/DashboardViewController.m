@@ -20,6 +20,9 @@
 
 @property (retain, nonatomic) NSMutableData *receivedData;
 @property (retain, nonatomic) NSURLConnection *connection;
+@property (retain, nonatomic) NSMutableData *receivedNotifData;
+@property (retain, nonatomic) NSURLConnection *connectionNotif;
+
 @property (nonatomic, strong) Dashboard *dashboard;
 @property (nonatomic, assign) NSString *notificationAmount;
 @property (strong, nonatomic) IBOutlet UIButton *buttonA;
@@ -133,10 +136,10 @@
 
 -(void) postData {
     
-    [self.connection cancel];
+    [self.connectionNotif cancel];
     
     NSMutableData *data = [[NSMutableData alloc] init];
-    self.receivedData = data;
+    self.receivedNotifData = data;
     NSURL *url = [NSURL URLWithString:@"https://www.thesoloconnection.com/demo/"];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[url standardizedURL]];
     [request setHTTPMethod:@"POST"];
@@ -147,7 +150,7 @@
     [request setHTTPBody:[postData dataUsingEncoding:NSUTF8StringEncoding]];
     
     NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
-    self.connection = connection;
+    self.connectionNotif = connection;
     
     [connection start];
     
@@ -278,11 +281,19 @@
 #pragma mark NSURLConnection delegates
 
 -(void) connection:(NSURLConnection *) connection didReceiveResponse:(NSURLResponse *)response {
+    if (connection == _connectionNotif) {
+        [_receivedNotifData setLength:0];
+    } else if (connection == _connection) {
         [_receivedData setLength:0];
+    }
 }
 
 -(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+    if (connection == _connectionNotif) {
+        [_receivedNotifData appendData:data];
+    } else if (connection == _connection) {
         [_receivedData appendData:data];
+    }
 }
 
 -(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
@@ -292,25 +303,34 @@
 
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection {
     NSError* error;
-    id json = [NSJSONSerialization JSONObjectWithData:_receivedData
-                                              options:kNilOptions
-                                                error:&error];
-    
-    if ([json objectForKey:@"notifications"] != nil) {
-        NSString *notificationCount = [json objectForKey:@"notifications"];
-        
-        _dashboard.notifications = [NSString stringWithFormat:@"%@", notificationCount];
-        _notificationAmount = _dashboard.notifications;
-        self.navigationItem.rightBarButtonItem.badgeValue = [NSString stringWithFormat:@"%@", _notificationAmount];
-    }
-    if ([json objectForKey:@"data"] != nil) {
-        NSMutableArray *searchResponse = [json objectForKey:@"data"];
+    if (connection == _connectionNotif) {
+        id json = [NSJSONSerialization JSONObjectWithData:_receivedNotifData
+                                                  options:kNilOptions
+                                                    error:&error];
 
-        _searchResults = searchResponse ;
-        NSLog(@"SearchResults: %@",_searchResults);
-        _tableView.delegate = self;
-        _tableView.dataSource = self;
-        [_tableView reloadData];
+        if ([json objectForKey:@"notifications"] != nil ) {
+            NSString *notificationCount = [json objectForKey:@"notifications"];
+            
+            _dashboard.notifications = [NSString stringWithFormat:@"%@", notificationCount];
+            _notificationAmount = _dashboard.notifications;
+            self.navigationItem.rightBarButtonItem.badgeValue = [NSString stringWithFormat:@"%@", _notificationAmount];
+        }
+        
+    } else if (connection == _connection) {
+        id json = [NSJSONSerialization JSONObjectWithData:_receivedData
+                                                  options:kNilOptions
+                                                    error:&error];
+
+        
+        if ([json objectForKey:@"data"] != nil) {
+            NSMutableArray *searchResponse = [json objectForKey:@"data"];
+            
+            _searchResults = searchResponse ;
+            NSLog(@"SearchResults: %@",_searchResults);
+            _tableView.delegate = self;
+            _tableView.dataSource = self;
+            [_tableView reloadData];
+        }
         
     }
 }
