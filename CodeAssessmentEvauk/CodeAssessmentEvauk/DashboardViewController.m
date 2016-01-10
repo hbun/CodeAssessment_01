@@ -44,7 +44,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
     _profileButton.layer.cornerRadius = 1;
     _profileButton.layer.borderWidth = 1;
     _profileButton.layer.borderColor = [[UIColor colorWithRed:0/255.0 green:132/255.0 blue:214/255.0 alpha:1] CGColor];
@@ -62,10 +62,7 @@
     _row_start = 0;
     _row_offset = 3;
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self postData];
-    });
-
+    [self postData];
     [self postSearchResultsWithFilter:_filter];
     
     self.navigationItem.hidesBackButton = YES;
@@ -135,6 +132,7 @@
 }
 
 -(void) postData {
+        [self startSpinner];
     
     [self.connectionNotif cancel];
     
@@ -163,6 +161,8 @@
 }
 
 -(void) postSearchResultsWithFilter:(NSString*)filter {
+
+    [self startSpinner];
     
     _filter = filter;
     
@@ -283,21 +283,26 @@
 -(void) connection:(NSURLConnection *) connection didReceiveResponse:(NSURLResponse *)response {
     if (connection == _connectionNotif) {
         [_receivedNotifData setLength:0];
+        [self stopSpinner];
     } else if (connection == _connection) {
         [_receivedData setLength:0];
+        [self stopSpinner];
     }
 }
 
 -(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
     if (connection == _connectionNotif) {
         [_receivedNotifData appendData:data];
+        [self stopSpinner];
     } else if (connection == _connection) {
         [_receivedData appendData:data];
+        [self stopSpinner];
     }
 }
 
 -(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     // If we get any connection error we can manage it here…
+    [self stopSpinner];
     return;
 }
 
@@ -314,6 +319,7 @@
             _dashboard.notifications = [NSString stringWithFormat:@"%@", notificationCount];
             _notificationAmount = _dashboard.notifications;
             self.navigationItem.rightBarButtonItem.badgeValue = [NSString stringWithFormat:@"%@", _notificationAmount];
+            [self stopSpinner];
         }
         
     } else if (connection == _connection) {
@@ -330,6 +336,7 @@
             _tableView.delegate = self;
             _tableView.dataSource = self;
             [_tableView reloadData];
+            [self stopSpinner];
         }
         
     }
@@ -448,6 +455,32 @@
     
     dateString = [formatter stringFromDate:[NSDate date]];
     return dateString;
+}
+
+- (void) startSpinner {
+    if (![self.view viewWithTag:12]) {
+        UIView *backgroundDim = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width, [[UIScreen mainScreen] bounds].size.height)];
+        backgroundDim.backgroundColor = [UIColor colorWithWhite:1 alpha:.5];
+        backgroundDim.tag = 13;
+        [self.view addSubview:backgroundDim];
+        
+        UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        spinner.color = [UIColor grayColor];
+        spinner.center = CGPointMake([[UIScreen mainScreen] bounds].size.width/2, [[UIScreen mainScreen] bounds].size.height/2.5);
+        spinner.tag = 12;
+        [self.view addSubview:spinner];
+        [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+        [spinner hidesWhenStopped];
+        [spinner startAnimating];
+    }
+}
+
+- (void) stopSpinner {
+    [[self.view viewWithTag:12] stopAnimating];
+    [[self.view viewWithTag:12] removeFromSuperview];
+    [[self.view viewWithTag:13] removeFromSuperview];
+    
+    [[UIApplication sharedApplication] endIgnoringInteractionEvents];
 }
 
 #pragma mark - Navigation

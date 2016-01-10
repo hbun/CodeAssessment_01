@@ -85,6 +85,7 @@
 }
 
 -(void) postData {
+    [self startSpinner];
     
     [self.connection cancel];
     
@@ -116,14 +117,17 @@
 
 -(void) connection:(NSURLConnection *) connection didReceiveResponse:(NSURLResponse *)response {
     [_receivedData setLength:0];
+    [self stopSpinner];
 }
 
 -(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
     [_receivedData appendData:data];
+    [self stopSpinner];
 }
 
 -(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     // If we get any connection error we can manage it here…
+    [self stopSpinner];
     return;
 }
 
@@ -153,6 +157,7 @@
     _userLabel3.attributedText = [self fullnameAndAmountString:_userThree];
     _userLabel4.attributedText = [self fullnameAndAmountString:_userFour];
     _userLabel5.attributedText = [self fullnameAndAmountString:_userFive];
+    [self stopSpinner];
     
 }
 
@@ -291,6 +296,31 @@
         NSMutableAttributedString *blankString = [[NSMutableAttributedString alloc] initWithString:baseString attributes:nil];
         return blankString;
     }
+}
+
+- (void) startSpinner {
+    if (![self.view viewWithTag:12]) {
+        UIView *backgroundDim = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width, [[UIScreen mainScreen] bounds].size.height)];
+        backgroundDim.backgroundColor = [UIColor colorWithWhite:1 alpha:.5];
+        backgroundDim.tag = 13;
+        
+        UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        spinner.color = [UIColor grayColor];
+        spinner.center = CGPointMake([[UIScreen mainScreen] bounds].size.width/2, [[UIScreen mainScreen] bounds].size.height/2.5);
+        spinner.tag = 12;
+        [self.view addSubview:spinner];
+        [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+        [spinner hidesWhenStopped];
+        [spinner startAnimating];
+    }
+}
+
+- (void) stopSpinner {
+    [[self.view viewWithTag:12] stopAnimating];
+    [[self.view viewWithTag:12] removeFromSuperview];
+    [[self.view viewWithTag:13] removeFromSuperview];
+    
+    [[UIApplication sharedApplication] endIgnoringInteractionEvents];
 }
 
 @end
